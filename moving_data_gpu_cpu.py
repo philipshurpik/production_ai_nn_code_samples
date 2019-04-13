@@ -7,6 +7,7 @@ from imageio import imread
 iterations = 12
 init_iterations = 2
 image = imread("images/obama.jpg")
+img_mean = torch.ByteTensor((118, 116, 117)).to('cuda:0')
 
 
 def cpu_to_gpu(image):
@@ -15,6 +16,14 @@ def cpu_to_gpu(image):
 
 def gpu_to_cpu(image_tensor):
     return image_tensor.cpu().numpy()
+
+
+def ariphmetic(image_tensor):
+    return image_tensor.div(255).sub(img_mean)
+
+
+def ariphmetic_(image_tensor):
+    return image_tensor.div_(255).sub_(img_mean)
 
 
 def measure(image, method, name):
@@ -29,3 +38,6 @@ def measure(image, method, name):
 
 measure(imread("images/obama.jpg"), cpu_to_gpu, "CPU to GPU: image |")
 measure(torch.tensor(imread("images/obama.jpg")).to("cuda:0"), gpu_to_cpu, "GPU to CPU: image |")
+
+measure(torch.tensor(imread("images/obama.jpg")).to("cuda:0").repeat(16,1,1,1), ariphmetic, "Ariphmetic: copy |")
+measure(torch.tensor(imread("images/obama.jpg")).to("cuda:0").repeat(16,1,1,1), ariphmetic_, "Ariphmetic: inplace |")
