@@ -13,11 +13,17 @@ dataloader = dataloaders['train']
 batch_size = 4
 
 resnet = torch.jit.trace(models.resnet18(pretrained=True).to(device), torch.rand(batch_size, 3, 224, 224).to(device))
+resnet_fp16 = torch.jit.trace(models.resnet18(pretrained=True).half().to(device), torch.rand(batch_size, 3, 224, 224).half().to(device))
 
 
 def resnet_infer(inputs):
     cuda_tensor = inputs.to(device)
     return resnet(cuda_tensor).argmax(1)
+
+
+def resnet_fp16_infer(inputs):
+    cuda_tensor = inputs.half().to(device)
+    return resnet_fp16(cuda_tensor).argmax(1)
 
 
 def process_set(model_infer, model_name):
@@ -31,3 +37,4 @@ def process_set(model_infer, model_name):
 
 
 process_set(model_infer=resnet_infer, model_name='resnet_jit_fp32')
+process_set(model_infer=resnet_fp16_infer, model_name='resnet_jit_fp16')
